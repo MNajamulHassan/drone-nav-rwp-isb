@@ -1,0 +1,1 @@
+// Declares the Dijkstra pathfinding interface.

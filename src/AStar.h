@@ -1,0 +1,1 @@
+// Declares the A* pathfinding interface.

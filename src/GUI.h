@@ -1,0 +1,1 @@
+// Declares the SFML-based graphical user interface.

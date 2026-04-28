@@ -1,0 +1,1 @@
+// Implements elevation map data access and lookup helpers.

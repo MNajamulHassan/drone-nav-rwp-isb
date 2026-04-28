@@ -1,0 +1,1 @@
+// Declares the OpenStreetMap XML parser interface.
