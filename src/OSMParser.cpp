@@ -2,7 +2,7 @@
 
 #include "OSMParser.h"
 
-#include "../vendor/tinyxml2.h"
+#include "tinyxml2.h"
 
 #include <cstdint>
 #include <iostream>

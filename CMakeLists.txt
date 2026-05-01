@@ -9,6 +9,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(SFML_COMPONENTS graphics window system)
 
+# Change this path if SFML is installed elsewhere.
+if(NOT SFML_DIR)
+    set(SFML_DIR "C:/SFML/lib/cmake/SFML")
+endif()
+
 # Prefer an installed SFML package, including vcpkg toolchain integrations.
 find_package(SFML 2.5 COMPONENTS ${SFML_COMPONENTS} CONFIG QUIET)
 
