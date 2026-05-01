@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <exception>
 #include <functional>
+#include <iostream>
 #include <limits>
 #include <queue>
 #include <unordered_map>
@@ -38,7 +40,8 @@ std::vector<long long> AStar::findPath(long long startId, long long endId) {
     try {
         graph.getNode(startId);
         graph.getNode(endId);
-    } catch (...) {
+    } catch (const std::exception& e) {
+        std::cerr << "AStar error: " << e.what() << std::endl;
         const auto endTime = std::chrono::high_resolution_clock::now();
         executionTimeMs =
             std::chrono::duration<double, std::milli>(endTime - startTime).count();
