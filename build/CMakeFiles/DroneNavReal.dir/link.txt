@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\DroneNavReal.dir/objects.a
+C:\mingw64\bin\ar.exe qc CMakeFiles\DroneNavReal.dir/objects.a @CMakeFiles\DroneNavReal.dir\objects1.rsp
+C:\mingw64\bin\c++.exe -O3 -DNDEBUG -Wl,--whole-archive CMakeFiles\DroneNavReal.dir/objects.a -Wl,--no-whole-archive -o DroneNavReal.exe -Wl,--out-implib,libDroneNavReal.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\DroneNavReal.dir\linkLibs.rsp

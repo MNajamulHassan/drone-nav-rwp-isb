@@ -1,9 +1,0 @@
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\main.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\main.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\AStar.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\AStar.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\Dijkstra.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\Dijkstra.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\ElevationMap.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\ElevationMap.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\GUI.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\GUI.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\Graph.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\Graph.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\NoFlyZone.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\NoFlyZone.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\src\OSMParser.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\OSMParser.obj
-F:\Projects\DroneNavReal\drone-nav-rwp-isb\vendor\tinyxml2.cpp;F:\Projects\DroneNavReal\drone-nav-rwp-isb\build\DroneNavReal.dir\Release\tinyxml2.obj
