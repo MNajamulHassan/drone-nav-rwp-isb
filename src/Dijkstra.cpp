@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
+#include "Utils.h"
 
 Dijkstra::Dijkstra(const Graph& graph) : graph(graph) {}
 
@@ -27,6 +28,9 @@ std::vector<long long> Dijkstra::findPath(long long startId, long long endId) {
     nodesExplored = 0;
     pathCostTotal = 0.0;
     executionTimeMs = 0.0;
+    totalElevationGain = 0.0;
+    totalElevationLoss = 0.0;
+    estimatedFlightTimeSec = 0.0;
     exploredOrder.clear();
 
     const auto startTime = std::chrono::high_resolution_clock::now();
@@ -76,16 +80,35 @@ std::vector<long long> Dijkstra::findPath(long long startId, long long endId) {
             const auto endTime = std::chrono::high_resolution_clock::now();
             executionTimeMs =
                 std::chrono::duration<double, std::milli>(endTime - startTime).count();
-            return reconstructPath(startId, endId, parent);
+
+            // Calculate drone flight metrics along the found path
+            std::vector<long long> path = reconstructPath(startId, endId, parent);
+            double pathDistanceMeters = 0.0;
+            for (size_t i = 0; i + 1 < path.size(); ++i) {
+                const GraphNode& curr = graph.getNode(path[i]);
+                const GraphNode& next = graph.getNode(path[i + 1]);
+                pathDistanceMeters += DroneUtils::haversineDistanceMeters(curr.lat, curr.lon, next.lat, next.lon);
+                const double diff = next.elevation - curr.elevation;
+                if (diff > 0.0) totalElevationGain += diff;
+                else if (diff < 0.0) totalElevationLoss += (-diff);
+            }
+
+            // DJI Mavic 3 reference: 15 m/s cruise, 6 m/s ascent, 3 m/s descent
+            constexpr double cruiseSpeed = 15.0;  // m/s
+            constexpr double ascentRate = 6.0;    // m/s
+            constexpr double descentRate = 3.0;   // m/s
+            const double horizontalTime = pathDistanceMeters / cruiseSpeed;
+            const double climbTime = totalElevationGain / ascentRate;
+            const double descentTime = totalElevationLoss / descentRate;
+            estimatedFlightTimeSec = horizontalTime + climbTime + descentTime;
+
+            return path;
         }
 
         const std::vector<GraphEdge>& neighbors = graph.getNeighbors(currentId);
         for (const GraphEdge& edge : neighbors) {
-            const GraphNode& neighborNode = graph.getNode(edge.toNodeId);
-            
-            if (neighborNode.isNoFly) {
-                continue;
-            }
+            // No-fly zones handled as cost penalties in Graph, not hard blocks
+            // Drone can physically fly anywhere but avoids restricted airspace
             if (visited.find(edge.toNodeId) != visited.end()) {
                 continue;
             }

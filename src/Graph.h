@@ -26,7 +26,7 @@ class Graph {
 public:
     void build(const OSMParser& parser, ElevationMap& elevation, const NoFlyZoneManager& noFlyZones);
 
-    double haversineDistance(double lat1, double lon1, double lat2, double lon2);
+    double haversineDistance(double lat1, double lon1, double lat2, double lon2) const;
     long long findNearestNode(double lat, double lon) const;
 
     const GraphNode& getNode(long long id) const;

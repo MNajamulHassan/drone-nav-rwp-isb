@@ -44,18 +44,41 @@ void Graph::build(const OSMParser& parser, ElevationMap& elevation, const NoFlyZ
             const double distance = haversineDistance(fromNode.lat, fromNode.lon, toNode.lat, toNode.lon);
             const double elevationCost =
                 elevation.getElevationCost(fromNode.lat, fromNode.lon, toNode.lat, toNode.lon);
-            const double weight = distance * roadWeight + elevationCost;
+            double weight = distance * roadWeight + elevationCost;
+
+            // No-fly zones: heavy cost penalty instead of blocking.
+            // Drone can physically fly anywhere but strongly avoids restricted airspace.
+            // Tiered penalty: edges deep inside zones (both endpoints) are far more expensive.
+            constexpr double noFlyEdgePenalty = 5000.0;   // one endpoint in no-fly zone
+            constexpr double noFlyDeepPenalty = 10000.0;  // both endpoints in no-fly zone
+            if (fromNode.isNoFly && toNode.isNoFly) {
+                weight *= noFlyDeepPenalty;
+            } else if (fromNode.isNoFly || toNode.isNoFly) {
+                weight *= noFlyEdgePenalty;
+            }
 
             adjacency[fromId].push_back({toId, weight});
             adjacency[toId].push_back({fromId, weight});
             edgeCount += 2;
         }
     }
+// Remove orphan nodes (nodes with no edges) — they cause disconnected graph
+std::vector<long long> orphans;
+for (const auto& entry : adjacency) {
+    if (entry.second.empty()) {
+        orphans.push_back(entry.first);
+    }
+}
+for (long long id : orphans) {
+    nodes.erase(id);
+    adjacency.erase(id);
+}
+std::cout << "Removed " << orphans.size() << " orphan nodes." << std::endl;
 
     std::cout << "Graph built: " << nodes.size() << " nodes, " << edgeCount << " edges" << std::endl;
 }
 
-double Graph::haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+double Graph::haversineDistance(double lat1, double lon1, double lat2, double lon2) const {
     return DroneUtils::haversineDistanceMeters(lat1, lon1, lat2, lon2);
 }
 

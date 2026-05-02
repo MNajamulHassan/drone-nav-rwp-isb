@@ -95,20 +95,28 @@ void GUI::handleMouseClick(float x, float y, AStar& astar, Dijkstra& dijkstra) {
                 lastCost = astar.pathCostTotal;
                 lastExplored = astar.nodesExplored;
                 lastTimeMs = astar.executionTimeMs;
+                lastElevGain = astar.totalElevationGain;
+                lastElevLoss = astar.totalElevationLoss;
+                lastFlightTimeSec = astar.estimatedFlightTimeSec;
                 
                 if (!currentPath.empty()) {
                     pathFoundStatus = "Yes";
                     lastDistance = 0.0;
-                    for (size_t i = 0; i + 1 < currentPath.size(); ++i) {
+                    lastNoFlyCount = 0;
+                    for (size_t i = 0; i < currentPath.size(); ++i) {
                         try {
-                            const GraphNode& n1 = graph.getNode(currentPath[i]);
-                            const GraphNode& n2 = graph.getNode(currentPath[i+1]);
-                            lastDistance += graph.haversineDistance(n1.lat, n1.lon, n2.lat, n2.lon);
+                            const GraphNode& n = graph.getNode(currentPath[i]);
+                            if (n.isNoFly) ++lastNoFlyCount;
+                            if (i + 1 < currentPath.size()) {
+                                const GraphNode& n2 = graph.getNode(currentPath[i+1]);
+                                lastDistance += graph.haversineDistance(n.lat, n.lon, n2.lat, n2.lon);
+                            }
                         } catch (...) {}
                     }
                 } else {
                     pathFoundStatus = "No";
                     lastDistance = 0.0;
+                    lastNoFlyCount = 0;
                 }
             }
         } else if (runDijkstraRect.contains(x, y)) {
@@ -119,20 +127,28 @@ void GUI::handleMouseClick(float x, float y, AStar& astar, Dijkstra& dijkstra) {
                 lastCost = dijkstra.pathCostTotal;
                 lastExplored = dijkstra.nodesExplored;
                 lastTimeMs = dijkstra.executionTimeMs;
+                lastElevGain = dijkstra.totalElevationGain;
+                lastElevLoss = dijkstra.totalElevationLoss;
+                lastFlightTimeSec = dijkstra.estimatedFlightTimeSec;
                 
                 if (!currentPath.empty()) {
                     pathFoundStatus = "Yes";
                     lastDistance = 0.0;
-                    for (size_t i = 0; i + 1 < currentPath.size(); ++i) {
+                    lastNoFlyCount = 0;
+                    for (size_t i = 0; i < currentPath.size(); ++i) {
                         try {
-                            const GraphNode& n1 = graph.getNode(currentPath[i]);
-                            const GraphNode& n2 = graph.getNode(currentPath[i+1]);
-                            lastDistance += graph.haversineDistance(n1.lat, n1.lon, n2.lat, n2.lon);
+                            const GraphNode& n = graph.getNode(currentPath[i]);
+                            if (n.isNoFly) ++lastNoFlyCount;
+                            if (i + 1 < currentPath.size()) {
+                                const GraphNode& n2 = graph.getNode(currentPath[i+1]);
+                                lastDistance += graph.haversineDistance(n.lat, n.lon, n2.lat, n2.lon);
+                            }
                         } catch (...) {}
                     }
                 } else {
                     pathFoundStatus = "No";
                     lastDistance = 0.0;
+                    lastNoFlyCount = 0;
                 }
             }
         } else if (clearRect.contains(x, y)) {
@@ -144,6 +160,10 @@ void GUI::handleMouseClick(float x, float y, AStar& astar, Dijkstra& dijkstra) {
             lastCost = 0.0;
             lastExplored = 0;
             lastTimeMs = 0.0;
+            lastNoFlyCount = 0;
+            lastElevGain = 0.0;
+            lastElevLoss = 0.0;
+            lastFlightTimeSec = 0.0;
         } else if (startRect.contains(x, y)) {
             currentMode = Mode::SET_START;
         } else if (endRect.contains(x, y)) {
@@ -340,20 +360,20 @@ void GUI::drawSidebar() {
     modeText.setPosition(970, 430);
     window.draw(modeText);
 
-    float statsY = 480;
+    float statsY = 470;
     auto drawStat = [&](const std::string& label, const std::string& val, sf::Color valColor = sf::Color::White) {
-        sf::Text lbl(label + ": ", font, 16);
+        sf::Text lbl(label + ": ", font, 14);
         lbl.setFillColor(sf::Color(200, 200, 200));
         lbl.setPosition(970, statsY);
         window.draw(lbl);
         
         sf::FloatRect lblBounds = lbl.getLocalBounds();
 
-        sf::Text value(val, font, 16);
+        sf::Text value(val, font, 14);
         value.setFillColor(valColor);
         value.setPosition(970 + lblBounds.left + lblBounds.width, statsY);
         window.draw(value);
-        statsY += 30;
+        statsY += 25;
     };
 
     drawStat("Algorithm", lastAlgorithm);
@@ -374,4 +394,26 @@ void GUI::drawSidebar() {
 
     snprintf(buf, sizeof(buf), "%.2f ms", lastTimeMs);
     drawStat("Time", buf);
+
+    if (lastNoFlyCount > 0) {
+        drawStat("No-Fly Nodes", std::to_string(lastNoFlyCount), sf::Color(255, 165, 0));
+    } else if (!currentPath.empty()) {
+        drawStat("No-Fly Nodes", "0 (clean route)", sf::Color::Green);
+    }
+
+    // Elevation and flight time stats
+    if (!currentPath.empty()) {
+        snprintf(buf, sizeof(buf), "+%.1f m", lastElevGain);
+        drawStat("Elev Gain", buf, sf::Color(100, 255, 100));
+
+        snprintf(buf, sizeof(buf), "-%.1f m", lastElevLoss);
+        drawStat("Elev Loss", buf, sf::Color(100, 200, 255));
+
+        int mins = static_cast<int>(lastFlightTimeSec) / 60;
+        int secs = static_cast<int>(lastFlightTimeSec) % 60;
+        snprintf(buf, sizeof(buf), "%d min %d sec", mins, secs);
+        drawStat("Flight Time", buf);
+
+        drawStat("Drone Speed", "15 m/s cruise", sf::Color(150, 150, 150));
+    }
 }

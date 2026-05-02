@@ -49,6 +49,10 @@ private:
     double lastCost = 0.0;
     int lastExplored = 0;
     double lastTimeMs = 0.0;
+    int lastNoFlyCount = 0;
+    double lastElevGain = 0.0;
+    double lastElevLoss = 0.0;
+    double lastFlightTimeSec = 0.0;
 
     sf::Vector2f gpsToScreen(double lat, double lon) const;
     std::pair<double, double> screenToGps(float x, float y) const;
